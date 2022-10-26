@@ -1,6 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flame_audio/audio_pool.dart';
-
 import 'package:flame_audio/bgm.dart';
 
 /// This utility class holds static references to some global audio objects.
@@ -17,6 +16,25 @@ class FlameAudio {
     ReleaseMode releaseMode,
     PlayerMode playerMode,
   ) async {
+    final audioContext = AudioContext(
+      iOS: AudioContextIOS(
+        defaultToSpeaker: true,
+        category: AVAudioSessionCategory.ambient,
+        options: [
+          AVAudioSessionOptions.defaultToSpeaker,
+          AVAudioSessionOptions.mixWithOthers,
+        ],
+      ),
+      android: AudioContextAndroid(
+        isSpeakerphoneOn: true,
+        stayAwake: true,
+        contentType: AndroidContentType.music,
+        usageType: AndroidUsageType.game,
+        audioFocus: AndroidAudioFocus.gain,
+      ),
+    );
+    AudioPlayer.global.setGlobalAudioContext(audioContext);
+
     final player = AudioPlayer()..audioCache = audioCache;
     await player.setReleaseMode(releaseMode);
     await player.play(
